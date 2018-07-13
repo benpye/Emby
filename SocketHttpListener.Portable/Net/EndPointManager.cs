@@ -56,10 +56,10 @@ namespace SocketHttpListener.Net
         {
             ListenerPrefix lp = new ListenerPrefix(p);
             if (lp.Path.IndexOf('%') != -1)
-                throw new HttpListenerException(400, "Invalid path.");
+                throw new SocketHttpListener.Primitives.HttpListenerException(400, "Invalid path.");
 
             if (lp.Path.IndexOf("//", StringComparison.Ordinal) != -1) // TODO: Code?
-                throw new HttpListenerException(400, "Invalid path.");
+                throw new SocketHttpListener.Primitives.HttpListenerException(400, "Invalid path.");
 
             // listens on all the interfaces if host name cannot be parsed by IPAddress.
             EndPointListener epl = GetEPListener(logger, lp.Host, lp.Port, listener, lp.Secure).Result;
@@ -82,7 +82,7 @@ namespace SocketHttpListener.Net
             {
                 try
                 {
-                    addr = (await networkManager.GetHostAddressesAsync(host).ConfigureAwait(false)).FirstOrDefault() ?? 
+                    addr = (await networkManager.GetHostAddressesAsync(host).ConfigureAwait(false)).FirstOrDefault() ??
                         GetIpAnyAddress(listener);
                 }
                 catch

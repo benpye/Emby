@@ -158,7 +158,7 @@ namespace Emby.Dlna.Main
             {
                 if (_communicationsServer == null)
                 {
-                    var enableMultiSocketBinding = _environmentInfo.OperatingSystem == OperatingSystem.Windows;
+                    var enableMultiSocketBinding = _environmentInfo.OperatingSystem == MediaBrowser.Model.System.OperatingSystem.Windows;
 
                     _communicationsServer = new SsdpCommunicationsServer(_socketFactory, _networkManager, _logger, enableMultiSocketBinding)
                     {
@@ -274,12 +274,12 @@ namespace Emby.Dlna.Main
                 var device = new SsdpRootDevice
                 {
                     CacheLifetime = TimeSpan.FromSeconds(cacheLength), //How long SSDP clients can cache this info.
-                    Location = uri, // Must point to the URL that serves your devices UPnP description document. 
+                    Location = uri, // Must point to the URL that serves your devices UPnP description document.
                     FriendlyName = "Emby Server",
                     Manufacturer = "Emby",
                     ModelName = "Emby Server",
                     Uuid = udn
-                    // This must be a globally unique value that survives reboots etc. Get from storage or embedded hardware etc.                
+                    // This must be a globally unique value that survives reboots etc. Get from storage or embedded hardware etc.
                 };
 
                 SetProperies(device, fullService);
@@ -300,7 +300,7 @@ namespace Emby.Dlna.Main
                         Manufacturer = device.Manufacturer,
                         ModelName = device.ModelName,
                         Uuid = udn
-                        // This must be a globally unique value that survives reboots etc. Get from storage or embedded hardware etc.                
+                        // This must be a globally unique value that survives reboots etc. Get from storage or embedded hardware etc.
                     };
 
                     SetProperies(embeddedDevice, subDevice);

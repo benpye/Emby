@@ -213,7 +213,7 @@ namespace Emby.Common.Implementations.HttpClientManager
                 {
 #if NET46
                     httpWebRequest.Host = options.Host;
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                     httpWebRequest.Headers["Host"] = options.Host;
 #endif
                 }
@@ -222,7 +222,7 @@ namespace Emby.Common.Implementations.HttpClientManager
                 {
 #if NET46
                     httpWebRequest.Referer = options.Referer;
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                     httpWebRequest.Headers["Referer"] = options.Referer;
 #endif
                 }
@@ -271,7 +271,7 @@ namespace Emby.Common.Implementations.HttpClientManager
                 {
 #if NET46
                     request.Headers.Set(header.Key, header.Value);
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                     request.Headers[header.Key] = header.Value;
 #endif
                 }
@@ -287,7 +287,7 @@ namespace Emby.Common.Implementations.HttpClientManager
         {
 #if NET46
             request.UserAgent = userAgent;
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                     request.Headers["User-Agent"] = userAgent;
 #endif
         }

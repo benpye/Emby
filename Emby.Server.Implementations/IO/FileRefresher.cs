@@ -182,7 +182,7 @@ namespace Emby.Server.Implementations.IO
                 }
                 catch (IOException ex)
                 {
-                    // For now swallow and log. 
+                    // For now swallow and log.
                     // Research item: If an IOException occurs, the item may be in a disconnected state (media unavailable)
                     // Should we remove it from it's parent?
                     Logger.ErrorException("Error refreshing {0}", ex, item.Name);
@@ -229,7 +229,7 @@ namespace Emby.Server.Implementations.IO
 
         private bool IsFileLocked(string path)
         {
-            if (_environmentInfo.OperatingSystem != OperatingSystem.Windows)
+            if (_environmentInfo.OperatingSystem != MediaBrowser.Model.System.OperatingSystem.Windows)
             {
                 // Causing lockups on linux
                 return false;

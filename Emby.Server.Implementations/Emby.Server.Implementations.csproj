@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediaBrowser.Common\MediaBrowser.Common.csproj" />
+    <ProjectReference Include="..\MediaBrowser.Controller\MediaBrowser.Controller.csproj" />
+    <ProjectReference Include="..\MediaBrowser.Model\MediaBrowser.Model.csproj" />
+    <ProjectReference Include="..\MediaBrowser.Providers\MediaBrowser.Providers.csproj" />
+    <ProjectReference Include="..\MediaBrowser.Server.Implementations\MediaBrowser.Server.Implementations.csproj" />
+    <ProjectReference Include="..\SocketHttpListener.Portable\SocketHttpListener.Portable.csproj" />
+    <ProjectReference Include="..\Emby.XmlTv\Emby.XmlTv.csproj" />
+    <ProjectReference Include="..\MediaBrowser.Naming\MediaBrowser.Naming.csproj" />
+    <ProjectReference Include="..\UniversalDetector\UniversalDetector.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SQLitePCL.pretty" Version="1.1.0" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="1.1.11" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\**\*.json" />
+    <EmbeddedResource Include="Localization\**\*.txt" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>

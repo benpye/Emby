@@ -31,18 +31,18 @@ namespace Emby.Common.Implementations.EnvironmentInfo
                     case PlatformID.Unix:
                         return MediaBrowser.Model.System.OperatingSystem.Linux;
                 }
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    return OperatingSystem.OSX;
+                    return MediaBrowser.Model.System.OperatingSystem.OSX;
                 }
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    return OperatingSystem.Windows;
+                    return MediaBrowser.Model.System.OperatingSystem.Windows;
                 }
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    return OperatingSystem.Linux;
+                    return MediaBrowser.Model.System.OperatingSystem.Linux;
                 }
 #endif
                 return MediaBrowser.Model.System.OperatingSystem.Windows;
@@ -55,7 +55,7 @@ namespace Emby.Common.Implementations.EnvironmentInfo
             {
 #if NET46
                 return Environment.OSVersion.Platform.ToString();
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
             return System.Runtime.InteropServices.RuntimeInformation.OSDescription;
 #endif
                 return "Operating System";
@@ -68,7 +68,7 @@ namespace Emby.Common.Implementations.EnvironmentInfo
             {
 #if NET46
                 return Environment.OSVersion.Version.ToString() + " " + Environment.OSVersion.ServicePack.ToString();
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
             return System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 #endif
                 return "1.0";
@@ -85,7 +85,7 @@ namespace Emby.Common.Implementations.EnvironmentInfo
                 }
 #if NET46
                 return Environment.Is64BitOperatingSystem ? MediaBrowser.Model.System.Architecture.X64 : MediaBrowser.Model.System.Architecture.X86;
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                 switch(System.Runtime.InteropServices.RuntimeInformation.OSArchitecture)
                 {
                     case System.Runtime.InteropServices.Architecture.Arm:

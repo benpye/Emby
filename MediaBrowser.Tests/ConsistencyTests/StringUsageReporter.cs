@@ -51,7 +51,7 @@ namespace MediaBrowser.Tests.ConsistencyTests
         /// <remarks>
         /// Can be an absolute path or a path relative to the binaries folder (bin\Debug).
         /// </remarks>
-        public const string WebFolder = @"..\..\..\MediaBrowser.WebDashboard\dashboard-ui";
+        public const string WebFolder = @"dashboard-ui";
 
         /// <summary>
         /// Path to the strings file, relative to <see cref="WebFolder"/>.
@@ -195,8 +195,8 @@ namespace MediaBrowser.Tests.ConsistencyTests
                 }
             }
 
-            TestContext.AddResultFile(outputFileName);
-            TestContext.AddResultFile(outputFolderInfo.FullName);
+            // TestContext.AddResultFile(outputFileName);
+            // TestContext.AddResultFile(outputFolderInfo.FullName);
         }
 
         private SortedDictionary<string, string> CreateStringsDictionary(FileInfo file, out int lineNumbers)

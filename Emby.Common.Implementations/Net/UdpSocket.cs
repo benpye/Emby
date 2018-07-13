@@ -56,7 +56,7 @@ namespace Emby.Common.Implementations.Net
             var state = new AsyncReceiveState(_Socket, receivedFromEndPoint);
             state.TaskCompletionSource = tcs;
 
-#if NETSTANDARD1_6
+#if NETSTANDARD
             _Socket.ReceiveFromAsync(new ArraySegment<Byte>(state.Buffer), SocketFlags.None, state.RemoteEndPoint)
                 .ContinueWith((task, asyncState) =>
                 {
@@ -83,7 +83,7 @@ namespace Emby.Common.Implementations.Net
 
             var ipEndPoint = NetworkManager.ToIPEndPoint(endPoint);
 
-#if NETSTANDARD1_6
+#if NETSTANDARD
 
             if (size != buffer.Length)
             {

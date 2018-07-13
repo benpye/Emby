@@ -111,14 +111,14 @@ namespace Emby.Dlna.Didl
             }
         }
 
-        public void WriteItemElement(DlnaOptions options, 
-            XmlWriter writer, 
-            BaseItem item, 
+        public void WriteItemElement(DlnaOptions options,
+            XmlWriter writer,
+            BaseItem item,
             User user,
-            BaseItem context, 
-            StubType? contextStubType, 
-            string deviceId, 
-            Filter filter, 
+            BaseItem context,
+            StubType? contextStubType,
+            string deviceId,
+            Filter filter,
             StreamInfo streamInfo = null)
         {
             var clientId = GetClientId(item, null);
@@ -582,7 +582,7 @@ namespace Emby.Dlna.Didl
                 return;
             }
 
-            XmlAttribute secAttribute = null;
+            MediaBrowser.Model.Dlna.XmlAttribute secAttribute = null;
             foreach (var attribute in _profile.XmlRootAttributes)
             {
                 if (string.Equals(attribute.Name, "xmlns:sec", StringComparison.OrdinalIgnoreCase))

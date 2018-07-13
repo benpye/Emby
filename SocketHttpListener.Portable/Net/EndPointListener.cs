@@ -71,8 +71,8 @@ namespace SocketHttpListener.Net
             }
             catch (SocketCreateException ex)
             {
-                if (_enableDualMode && endpoint.IpAddress.Equals(IpAddressInfo.IPv6Any) && 
-                    (string.Equals(ex.ErrorCode, "AddressFamilyNotSupported", StringComparison.OrdinalIgnoreCase) || 
+                if (_enableDualMode && endpoint.IpAddress.Equals(IpAddressInfo.IPv6Any) &&
+                    (string.Equals(ex.ErrorCode, "AddressFamilyNotSupported", StringComparison.OrdinalIgnoreCase) ||
                     // mono on bsd is throwing this
                     string.Equals(ex.ErrorCode, "ProtocolNotSupported", StringComparison.OrdinalIgnoreCase)))
                 {
@@ -238,7 +238,7 @@ namespace SocketHttpListener.Net
             foreach (ListenerPrefix p in coll)
             {
                 if (p.Path == prefix.Path) //TODO: code
-                    throw new HttpListenerException(400, "Prefix already in use.");
+                    throw new SocketHttpListener.Primitives.HttpListenerException(400, "Prefix already in use.");
             }
             coll.Add(prefix);
         }
@@ -331,7 +331,7 @@ namespace SocketHttpListener.Net
                 {
                     HttpListener other = (HttpListener)prefs[prefix];
                     if (other != listener) // TODO: code.
-                        throw new HttpListenerException(400, "There's another listener for " + prefix);
+                        throw new SocketHttpListener.Primitives.HttpListenerException(400, "There's another listener for " + prefix);
                     return;
                 }
                 p2 = new Dictionary<ListenerPrefix, HttpListener>(prefs);

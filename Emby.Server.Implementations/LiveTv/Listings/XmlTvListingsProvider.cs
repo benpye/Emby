@@ -193,7 +193,10 @@ namespace Emby.Server.Implementations.LiveTv.Listings
             }
             else
             {
-                var uniqueString = (p.Title ?? string.Empty) + (episodeTitle ?? string.Empty) + (p.IceTvEpisodeNumber ?? string.Empty);
+                string iceTvEpisodeNumber;
+                p.ProviderIds.TryGetValue("icetv", out iceTvEpisodeNumber);
+
+                var uniqueString = (p.Title ?? string.Empty) + (episodeTitle ?? string.Empty) + (iceTvEpisodeNumber ?? string.Empty);
 
                 if (programInfo.SeasonNumber.HasValue)
                 {

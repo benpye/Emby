@@ -39,10 +39,6 @@ using MediaBrowser.Model.System;
 using MediaBrowser.Model.Tasks;
 using MediaBrowser.Model.Threading;
 
-#if NETSTANDARD1_6
-using System.Runtime.Loader;
-#endif
-
 namespace Emby.Common.Implementations
 {
     /// <summary>
@@ -442,7 +438,7 @@ namespace Emby.Common.Implementations
                     var assemblyFilePath = Path.Combine(ApplicationPaths.PluginsPath, assemblyFileName);
 
                     assemblyPlugin.SetAttributes(assemblyFilePath, assemblyFileName, assemblyName.Version, assemblyId);
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
                     var typeInfo = plugin.GetType().GetTypeInfo();
                     var assembly = typeInfo.Assembly;
                     var assemblyName = assembly.GetName();
@@ -492,7 +488,7 @@ return null;
 #if NET46
                     return t.IsClass && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
 #endif    
-#if NETSTANDARD1_6
+#if NETSTANDARD
                     var typeInfo = t.GetTypeInfo();
                     return typeInfo.IsClass && !typeInfo.IsAbstract && !typeInfo.IsInterface && !typeInfo.IsGenericType;
 #endif
@@ -712,13 +708,7 @@ return null;
         {
             try
             {
-#if NET46
                 return Assembly.Load(File.ReadAllBytes(file));
-#elif NETSTANDARD1_6
-                
-                return AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file)));
-#endif
-                return null;
             }
             catch (Exception ex)
             {
@@ -739,7 +729,7 @@ return null;
 
 #if NET46
             return AllConcreteTypes.Where(currentType.IsAssignableFrom);
-#elif NETSTANDARD1_6
+#elif NETSTANDARD
             var currentTypeInfo = currentType.GetTypeInfo();
 
             return AllConcreteTypes.Where(currentTypeInfo.IsAssignableFrom);

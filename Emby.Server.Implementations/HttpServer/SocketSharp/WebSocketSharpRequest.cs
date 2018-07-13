@@ -18,11 +18,11 @@ namespace Emby.Server.Implementations.HttpServer.SocketSharp
 {
     public partial class WebSocketSharpRequest : IHttpRequest
     {
-        private readonly HttpListenerRequest request;
+        private readonly SocketHttpListener.Net.HttpListenerRequest request;
         private readonly IHttpResponse response;
         private readonly IMemoryStreamFactory _memoryStreamProvider;
 
-        public WebSocketSharpRequest(HttpListenerContext httpContext, string operationName, ILogger logger, IMemoryStreamFactory memoryStreamProvider)
+        public WebSocketSharpRequest(SocketHttpListener.Net.HttpListenerContext httpContext, string operationName, ILogger logger, IMemoryStreamFactory memoryStreamProvider)
         {
             this.OperationName = operationName;
             _memoryStreamProvider = memoryStreamProvider;
@@ -30,7 +30,7 @@ namespace Emby.Server.Implementations.HttpServer.SocketSharp
             this.response = new WebSocketSharpResponse(logger, httpContext.Response, this);
         }
 
-        public HttpListenerRequest HttpRequest
+        public SocketHttpListener.Net.HttpListenerRequest HttpRequest
         {
             get { return request; }
         }

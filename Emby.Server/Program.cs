@@ -73,7 +73,7 @@ namespace Emby.Server
             logManager.AddConsoleOutput();
 
             var logger = _logger = logManager.GetLogger("Main");
-            
+
             ApplicationHost.LogEnvironmentInfo(logger, appPaths, true);
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -95,7 +95,7 @@ namespace Emby.Server
 
         private static void SetSqliteProvider()
         {
-            SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+            SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
         }
 
         /// <summary>
