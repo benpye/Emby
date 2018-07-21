@@ -1,70 +1,111 @@
-define(["jQuery"], function ($) {
-    "use strict";
+﻿define(['jQuery'], function ($) {
+    'use strict';
 
     function load(page, device, capabilities) {
-        capabilities.SupportsContentUploading ? $("#fldCameraUploadPath", page).removeClass("hide") : $("#fldCameraUploadPath", page).addClass("hide"), $("#txtCustomName", page).val(device.CustomName || ""), $("#txtUploadPath", page).val(device.CameraUploadPath || ""), $(".reportedName", page).html(device.ReportedName || "")
+
+        if (capabilities.SupportsContentUploading) {
+            $('#fldCameraUploadPath', page).removeClass('hide');
+        } else {
+            $('#fldCameraUploadPath', page).addClass('hide');
+        }
+
+        $('#txtCustomName', page).val(device.CustomName || '');
+        $('#txtUploadPath', page).val(device.CameraUploadPath || '');
+        $('.reportedName', page).html(device.ReportedName || '');
     }
 
     function loadData(page) {
+
         Dashboard.showLoadingMsg();
-        var id = getParameterByName("id"),
-            promise1 = ApiClient.getJSON(ApiClient.getUrl("Devices/Info", {
-                Id: id
-            })),
-            promise2 = ApiClient.getJSON(ApiClient.getUrl("Devices/Capabilities", {
-                Id: id
-            }));
+
+        var id = getParameterByName('id');
+
+        var promise1 = ApiClient.getJSON(ApiClient.getUrl('Devices/Info', { Id: id }));
+        var promise2 = ApiClient.getJSON(ApiClient.getUrl('Devices/Capabilities', { Id: id }));
+
         Promise.all([promise1, promise2]).then(function (responses) {
-            load(page, responses[0], responses[1]), Dashboard.hideLoadingMsg()
-        })
+
+            load(page, responses[0], responses[1]);
+
+            Dashboard.hideLoadingMsg();
+        });
     }
 
     function save(page) {
-        var id = getParameterByName("id");
+
+        var id = getParameterByName('id');
+
         ApiClient.ajax({
-            url: ApiClient.getUrl("Devices/Options", {
-                Id: id
-            }),
-            type: "POST",
+
+            url: ApiClient.getUrl('Devices/Options', { Id: id }),
+            type: 'POST',
             data: JSON.stringify({
-                CustomName: $("#txtCustomName", page).val(),
-                CameraUploadPath: $("#txtUploadPath", page).val()
+
+                CustomName: $('#txtCustomName', page).val(),
+                CameraUploadPath: $('#txtUploadPath', page).val()
+
             }),
             contentType: "application/json"
-        }).then(Dashboard.processServerConfigurationUpdateResult)
+
+        }).then(Dashboard.processServerConfigurationUpdateResult);
     }
 
     function onSubmit() {
-        var form = this,
-            page = $(form).parents(".page");
-        return save(page), !1
+        var form = this;
+        var page = $(form).parents('.page');
+
+        save(page);
+
+        return false;
     }
 
     function getTabs() {
-        return [{
-            href: "devices.html",
-            name: Globalize.translate("TabDevices")
-        }, {
-            href: "devicesupload.html",
-            name: Globalize.translate("TabCameraUpload")
-        }]
+        return [
+            {
+                href: 'devices.html',
+                name: Globalize.translate('TabDevices')
+            },
+            {
+                href: 'devicesupload.html',
+                name: Globalize.translate('TabCameraUpload')
+            }
+        ];
     }
-    $(document).on("pageinit", "#devicePage", function () {
+
+    $(document).on('pageinit', "#devicePage", function () {
+
         var page = this;
-        $("#btnSelectUploadPath", page).on("click.selectDirectory", function () {
-            require(["directorybrowser"], function (directoryBrowser) {
-                var picker = new directoryBrowser;
+
+        $('#btnSelectUploadPath', page).on("click.selectDirectory", function () {
+
+            require(['directorybrowser'], function (directoryBrowser) {
+
+                var picker = new directoryBrowser();
+
                 picker.show({
+
                     callback: function (path) {
-                        path && $("#txtUploadPath", page).val(path), picker.close()
+
+                        if (path) {
+                            $('#txtUploadPath', page).val(path);
+                        }
+                        picker.close();
                     },
-                    header: Globalize.translate("HeaderSelectUploadPath")
-                })
-            })
-        }), $(".deviceForm").off("submit", onSubmit).on("submit", onSubmit)
-    }).on("pageshow", "#devicePage", function () {
-        LibraryMenu.setTabs("devices", 0, getTabs);
+
+                    header: Globalize.translate('HeaderSelectUploadPath')
+                });
+            });
+        });
+
+        $('.deviceForm').off('submit', onSubmit).on('submit', onSubmit);
+
+    }).on('pageshow', "#devicePage", function () {
+
+        LibraryMenu.setTabs('devices', 0, getTabs);
+
         var page = this;
-        loadData(page)
-    })
+
+        loadData(page);
+    });
+
 });

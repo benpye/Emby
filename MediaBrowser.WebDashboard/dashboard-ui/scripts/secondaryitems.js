@@ -1,19 +1,49 @@
-define(["libraryBrowser", "listView", "cardBuilder", "imageLoader", "apphost", "globalize", "emby-itemscontainer"], function (libraryBrowser, listView, cardBuilder, imageLoader, appHost, globalize) {
-    "use strict";
+﻿define(['libraryBrowser', 'listView', 'cardBuilder', 'imageLoader', 'apphost', 'globalize', 'emby-itemscontainer'], function (libraryBrowser, listView, cardBuilder, imageLoader, appHost, globalize) {
+    'use strict';
+
     return function (view, params) {
+
+        var data = {};
+
         function addCurrentItemToQuery(query, item) {
-            params.parentId && (query.ParentId = params.parentId), "Person" == item.Type ? query.PersonIds = item.Id : "Genre" == item.Type ? query.Genres = item.Name : "MusicGenre" == item.Type ? query.Genres = item.Name : "GameGenre" == item.Type ? query.Genres = item.Name : "Studio" == item.Type ? query.StudioIds = item.Id : "MusicArtist" == item.Type ? query.ArtistIds = item.Id : query.ParentId = item.Id
+
+            if (params.parentId) {
+                query.ParentId = params.parentId;
+            }
+
+            if (item.Type == "Person") {
+                query.PersonIds = item.Id;
+            }
+            else if (item.Type == "Genre") {
+                query.Genres = item.Name;
+            }
+            else if (item.Type == "MusicGenre") {
+                query.Genres = item.Name;
+            }
+            else if (item.Type == "GameGenre") {
+                query.Genres = item.Name;
+            }
+            else if (item.Type == "Studio") {
+                query.StudioIds = item.Id;
+            }
+            else if (item.Type == "MusicArtist") {
+                query.ArtistIds = item.Id;
+            } else {
+                query.ParentId = item.Id;
+            }
         }
 
         function getQuery(parentItem) {
-            var key = getSavedQueryKey(),
-                pageData = data[key];
+
+            var key = getSavedQueryKey();
+            var pageData = data[key];
+
             if (!pageData) {
                 pageData = data[key] = {
                     query: {
                         SortBy: "SortName",
                         SortOrder: "Ascending",
-                        Recursive: "false" !== params.recursive,
+                        Recursive: params.recursive !== 'false',
                         Fields: "PrimaryImageAspectRatio,SortName,BasicSyncInfo",
                         ImageTypeLimit: 1,
                         EnableImageTypes: "Primary,Backdrop,Banner,Thumb",
@@ -21,120 +51,264 @@ define(["libraryBrowser", "listView", "cardBuilder", "imageLoader", "apphost", "
                         Limit: libraryBrowser.getDefaultPageSize()
                     }
                 };
+
                 var type = params.type;
-                type && (pageData.query.IncludeItemTypes = type, "Audio" == type && (pageData.query.SortBy = "Album,SortName"));
+                if (type) {
+                    pageData.query.IncludeItemTypes = type;
+
+                    if (type == 'Audio') {
+                        pageData.query.SortBy = 'Album,SortName';
+                    }
+                }
+
                 var filters = params.filters;
-                type && (pageData.query.Filters = filters), parentItem && addCurrentItemToQuery(pageData.query, parentItem), libraryBrowser.loadSavedQueryValues(key, pageData.query)
+                if (type) {
+                    pageData.query.Filters = filters;
+                }
+
+                if (parentItem) {
+                    addCurrentItemToQuery(pageData.query, parentItem);
+                }
+
+                libraryBrowser.loadSavedQueryValues(key, pageData.query);
             }
-            return pageData.query
+            return pageData.query;
         }
 
         function getSavedQueryKey() {
-            return libraryBrowser.getSavedQueryKey()
+
+            return libraryBrowser.getSavedQueryKey();
         }
 
         function parentWithClass(elem, className) {
-            for (; !elem.classList || !elem.classList.contains(className);)
-                if (elem = elem.parentNode, !elem) return null;
-            return elem
-        }
 
+            while (!elem.classList || !elem.classList.contains(className)) {
+                elem = elem.parentNode;
+
+                if (!elem) {
+                    return null;
+                }
+            }
+
+            return elem;
+        }
         function onListItemClick(e) {
-            var mediaItem = parentWithClass(e.target, "mediaItem");
+
+            var mediaItem = parentWithClass(e.target, 'mediaItem');
             if (mediaItem) {
                 var info = libraryBrowser.getListItemInfo(mediaItem);
-                if ("Photo" == info.mediaType) {
+
+                if (info.mediaType == 'Photo') {
                     var query = getQuery();
-                    return require(["scripts/photos"], function () {
-                        Photos.startSlideshow(view, query, info.id)
-                    }), !1
+
+                    require(['scripts/photos'], function () {
+                        Photos.startSlideshow(view, query, info.id);
+                    });
+                    return false;
                 }
             }
         }
 
         function onViewStyleChange(parentItem) {
-            var query = getQuery(parentItem),
-                itemsContainer = view.querySelector("#items");
-            "Audio" == query.IncludeItemTypes ? (itemsContainer.classList.add("vertical-list"), itemsContainer.classList.remove("vertical-wrap")) : (itemsContainer.classList.remove("vertical-list"), itemsContainer.classList.add("vertical-wrap"))
+
+            var query = getQuery(parentItem);
+
+            var itemsContainer = view.querySelector('#items');
+
+            if (query.IncludeItemTypes == "Audio") {
+
+                itemsContainer.classList.add('vertical-list');
+                itemsContainer.classList.remove('vertical-wrap');
+
+            } else {
+
+                itemsContainer.classList.remove('vertical-list');
+                itemsContainer.classList.add('vertical-wrap');
+            }
         }
 
         function getPromise(parentItem) {
-            var apiClient = ApiClient,
-                query = getQuery(parentItem);
-            return "nextup" === params.type ? apiClient.getNextUpEpisodes({
-                Limit: query.Limit,
-                Fields: "PrimaryImageAspectRatio,SeriesInfo,DateCreated,BasicSyncInfo",
-                UserId: apiClient.getCurrentUserId(),
-                ImageTypeLimit: 1,
-                EnableImageTypes: "Primary,Backdrop,Thumb"
-            }) : apiClient.getItems(apiClient.getCurrentUserId(), query)
+
+            var apiClient = ApiClient;
+            var query = getQuery(parentItem);
+
+            if (params.type === 'nextup') {
+                return apiClient.getNextUpEpisodes({
+                    Limit: query.Limit,
+                    Fields: 'PrimaryImageAspectRatio,SeriesInfo,DateCreated,BasicSyncInfo',
+                    UserId: apiClient.getCurrentUserId(),
+                    ImageTypeLimit: 1,
+                    EnableImageTypes: 'Primary,Backdrop,Thumb'
+                });
+            } else {
+                return apiClient.getItems(apiClient.getCurrentUserId(), query);
+            }
         }
 
         function reloadItems(parentItem) {
-            Dashboard.showLoadingMsg(), getPromise(parentItem).then(function (result) {
-                function onNextPageClick() {
-                    query.StartIndex += query.Limit, reloadItems(view)
+
+            Dashboard.showLoadingMsg();
+
+            getPromise(parentItem).then(function (result) {
+
+                // Scroll back up so they can see the results from the beginning
+                window.scrollTo(0, 0);
+
+                var query = getQuery(parentItem);
+                var html = '';
+                var pagingHtml = libraryBrowser.getQueryPagingHtml({
+                    startIndex: query.StartIndex,
+                    limit: query.Limit,
+                    totalRecordCount: result.TotalRecordCount,
+                    showLimit: false
+                });
+
+                var i, length;
+                var elems;
+
+                elems = view.querySelectorAll('.paging');
+                for (i = 0, length = elems.length; i < length; i++) {
+                    elems[i].innerHTML = pagingHtml;
                 }
 
-                function onPreviousPageClick() {
-                    query.StartIndex -= query.Limit, reloadItems(view)
-                }
-                window.scrollTo(0, 0);
-                var i, length, elems, query = getQuery(parentItem),
-                    html = "",
-                    pagingHtml = libraryBrowser.getQueryPagingHtml({
-                        startIndex: query.StartIndex,
-                        limit: query.Limit,
-                        totalRecordCount: result.TotalRecordCount,
-                        showLimit: !1
+                var itemsContainer = view.querySelector('#items');
+                var supportsImageAnalysis = appHost.supports('imageanalysis');
+
+                if (query.IncludeItemTypes == "Audio") {
+
+                    html = listView.getListViewHtml({
+                        items: result.Items,
+                        playFromHere: true,
+                        action: 'playallfromhere',
+                        smallIcon: true
                     });
-                for (elems = view.querySelectorAll(".paging"), i = 0, length = elems.length; i < length; i++) elems[i].innerHTML = pagingHtml;
-                var itemsContainer = view.querySelector("#items"),
-                    supportsImageAnalysis = appHost.supports("imageanalysis");
-                if ("Audio" == query.IncludeItemTypes) html = listView.getListViewHtml({
-                    items: result.Items,
-                    playFromHere: !0,
-                    action: "playallfromhere",
-                    smallIcon: !0
-                });
-                else {
+
+                } else {
+
                     var posterOptions = {
                         items: result.Items,
                         shape: "auto",
-                        centerText: !0,
-                        lazy: !0
+                        centerText: true,
+                        lazy: true
                     };
-                    "nextup" === params.type ? posterOptions = Object.assign(posterOptions, {
-                        preferThumb: !0,
-                        shape: "backdrop",
-                        scalable: !0,
-                        showTitle: !0,
-                        showParentTitle: !0,
-                        overlayText: !1,
-                        centerText: !supportsImageAnalysis,
-                        overlayPlayButton: !0,
-                        cardLayout: supportsImageAnalysis,
-                        vibrant: supportsImageAnalysis
-                    }) : "MusicAlbum" == query.IncludeItemTypes ? (posterOptions.overlayText = !1, posterOptions.showParentTitle = !0, posterOptions.showTitle = !0, posterOptions.overlayPlayButton = !0) : "MusicArtist" == query.IncludeItemTypes ? (posterOptions.overlayText = !1, posterOptions.overlayPlayButton = !0) : "Episode" == query.IncludeItemTypes && (posterOptions.overlayText = !1, posterOptions.showParentTitle = !0, posterOptions.showTitle = !0, posterOptions.overlayPlayButton = !0), html = cardBuilder.getCardsHtml(posterOptions)
+
+                    if (params.type === 'nextup') {
+
+                        posterOptions.preferThumb = true;
+                        posterOptions.shape = 'backdrop';
+                        posterOptions.scalable = true;
+                        posterOptions.showTitle = true;
+                        posterOptions.showParentTitle = true;
+                        posterOptions.overlayText = false;
+                        posterOptions.centerText = !supportsImageAnalysis;
+                        posterOptions.overlayPlayButton = true;
+                        posterOptions.cardLayout = supportsImageAnalysis;
+                        posterOptions.vibrant = supportsImageAnalysis;
+                    } else {
+
+                        if (query.IncludeItemTypes == "MusicAlbum") {
+                            posterOptions.overlayText = false;
+                            posterOptions.showParentTitle = true;
+                            posterOptions.showTitle = true;
+                            posterOptions.overlayPlayButton = true;
+                        }
+                        else if (query.IncludeItemTypes == "MusicArtist") {
+                            posterOptions.overlayText = false;
+                            posterOptions.overlayPlayButton = true;
+                        }
+                        else if (query.IncludeItemTypes == "Episode") {
+                            posterOptions.overlayText = false;
+                            posterOptions.showParentTitle = true;
+                            posterOptions.showTitle = true;
+                            posterOptions.overlayPlayButton = true;
+                        }
+                    }
+
+                    // Poster
+                    html = cardBuilder.getCardsHtml(posterOptions);
                 }
-                for (itemsContainer.innerHTML = html, imageLoader.lazyChildren(itemsContainer), elems = view.querySelectorAll(".btnNextPage"), i = 0, length = elems.length; i < length; i++) elems[i].addEventListener("click", onNextPageClick);
-                for (elems = view.querySelectorAll(".btnPreviousPage"), i = 0, length = elems.length; i < length; i++) elems[i].addEventListener("click", onPreviousPageClick);
-                Dashboard.hideLoadingMsg()
-            })
+
+                itemsContainer.innerHTML = html;
+                imageLoader.lazyChildren(itemsContainer);
+
+                function onNextPageClick() {
+                    query.StartIndex += query.Limit;
+                    reloadItems(view);
+                }
+
+                function onPreviousPageClick() {
+                    query.StartIndex -= query.Limit;
+                    reloadItems(view);
+                }
+
+                elems = view.querySelectorAll('.btnNextPage');
+                for (i = 0, length = elems.length; i < length; i++) {
+                    elems[i].addEventListener('click', onNextPageClick);
+                }
+
+                elems = view.querySelectorAll('.btnPreviousPage');
+                for (i = 0, length = elems.length; i < length; i++) {
+                    elems[i].addEventListener('click', onPreviousPageClick);
+                }
+
+                Dashboard.hideLoadingMsg();
+            });
         }
 
+        view.addEventListener('click', onListItemClick);
+
         function getItemPromise() {
+
             var id = params.genreId || params.studioId || params.artistId || params.personId || params.parentId;
-            if (id) return ApiClient.getItem(Dashboard.getCurrentUserId(), id);
+
+            if (id) {
+                return ApiClient.getItem(Dashboard.getCurrentUserId(), id);
+            }
+
             var name = params.genre;
-            return name ? ApiClient.getGenre(name, Dashboard.getCurrentUserId()) : (name = params.musicgenre) ? ApiClient.getMusicGenre(name, Dashboard.getCurrentUserId()) : (name = params.gamegenre, name ? ApiClient.getGameGenre(name, Dashboard.getCurrentUserId()) : null)
+
+            if (name) {
+                return ApiClient.getGenre(name, Dashboard.getCurrentUserId());
+            }
+
+            name = params.musicgenre;
+
+            if (name) {
+                return ApiClient.getMusicGenre(name, Dashboard.getCurrentUserId());
+            }
+
+            name = params.gamegenre;
+
+            if (name) {
+                return ApiClient.getGameGenre(name, Dashboard.getCurrentUserId());
+            }
+
+            return null;
         }
-        var data = {};
-        view.addEventListener("click", onListItemClick), view.addEventListener("viewbeforeshow", function (e) {
+
+        view.addEventListener('viewbeforeshow', function (e) {
+
             var parentPromise = getItemPromise();
-            parentPromise ? parentPromise.then(function (parent) {
-                LibraryMenu.setTitle(parent.Name), onViewStyleChange(parent), reloadItems(parent)
-            }) : ("nextup" === params.type && LibraryMenu.setTitle(globalize.translate("HeaderNextUp")), onViewStyleChange(), reloadItems())
-        })
-    }
+
+            if (parentPromise) {
+                parentPromise.then(function (parent) {
+                    LibraryMenu.setTitle(parent.Name);
+
+                    if (params.type === 'nextup') {
+                        LibraryMenu.setTitle(globalize.translate('HeaderNextUp'));
+                    }
+
+                    onViewStyleChange(parent);
+                    reloadItems(parent);
+                });
+            }
+
+            else {
+                onViewStyleChange();
+                reloadItems();
+            }
+        });
+    };
+
+
 });

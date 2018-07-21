@@ -1,82 +1,131 @@
-define(["cardBuilder", "imageLoader", "libraryBrowser", "loading", "emby-itemscontainer"], function (cardBuilder, imageLoader, libraryBrowser, loading) {
-    "use strict";
+﻿define(['cardBuilder', 'imageLoader', 'libraryBrowser', 'loading', 'emby-itemscontainer'], function (cardBuilder, imageLoader, libraryBrowser, loading) {
+    'use strict';
+
     return function (view, params, tabContent) {
+
+        var self = this;
+
+        var data = {};
+
+        var pageData;
+
         function getPageData() {
-            return pageData || (pageData = {
-                query: {
-                    StartIndex: 0,
-                    Limit: 100,
-                    Fields: "PrimaryImageAspectRatio"
-                }
-            }), pageData
+            if (!pageData) {
+                pageData = data[key] = {
+                    query: {
+                        StartIndex: 0,
+                        Limit: 100,
+                        Fields: "PrimaryImageAspectRatio"
+                    }
+                };
+            }
+            return pageData;
         }
 
         function getQuery() {
-            return getPageData().query
+
+            return getPageData().query;
         }
 
         function getChannelsHtml(channels) {
+
             return cardBuilder.getCardsHtml({
                 items: channels,
                 shape: "square",
-                showTitle: !0,
-                lazy: !0,
-                cardLayout: !0,
-                showDetailsMenu: !0,
-                showCurrentProgram: !0
-            })
+                showTitle: true,
+                lazy: true,
+                cardLayout: true,
+                showDetailsMenu: true,
+                showCurrentProgram: true
+            });
         }
 
         function renderChannels(context, result) {
-            function onNextPageClick() {
-                query.StartIndex += query.Limit, reloadItems(context)
-            }
 
-            function onPreviousPageClick() {
-                query.StartIndex -= query.Limit, reloadItems(context)
-            }
             var query = getQuery();
-            context.querySelector(".paging").innerHTML = libraryBrowser.getQueryPagingHtml({
+
+            context.querySelector('.paging').innerHTML = LibraryBrowser.getQueryPagingHtml({
                 startIndex: query.StartIndex,
                 limit: query.Limit,
                 totalRecordCount: result.TotalRecordCount,
-                showLimit: !1,
-                updatePageSizeSetting: !1,
-                filterButton: !1
+                showLimit: false,
+                updatePageSizeSetting: false,
+                filterButton: false
             });
-            var html = getChannelsHtml(result.Items),
-                elem = context.querySelector("#items");
-            elem.innerHTML = html, imageLoader.lazyChildren(elem);
-            var i, length, elems;
-            for (elems = context.querySelectorAll(".btnNextPage"), i = 0, length = elems.length; i < length; i++) elems[i].addEventListener("click", onNextPageClick);
-            for (elems = context.querySelectorAll(".btnPreviousPage"), i = 0, length = elems.length; i < length; i++) elems[i].addEventListener("click", onPreviousPageClick)
+
+            var html = getChannelsHtml(result.Items);
+
+            var elem = context.querySelector('#items');
+            elem.innerHTML = html;
+            imageLoader.lazyChildren(elem);
+
+            var i, length;
+            var elems;
+
+            function onNextPageClick() {
+                query.StartIndex += query.Limit;
+                reloadItems(context);
+            }
+
+            function onPreviousPageClick() {
+                query.StartIndex -= query.Limit;
+                reloadItems(context);
+            }
+
+            elems = context.querySelectorAll('.btnNextPage');
+            for (i = 0, length = elems.length; i < length; i++) {
+                elems[i].addEventListener('click', onNextPageClick);
+            }
+
+            elems = context.querySelectorAll('.btnPreviousPage');
+            for (i = 0, length = elems.length; i < length; i++) {
+                elems[i].addEventListener('click', onPreviousPageClick);
+            }
         }
 
         function showFilterMenu(context) {
-            require(["components/filterdialog/filterdialog"], function (filterDialogFactory) {
+
+            require(['components/filterdialog/filterdialog'], function (filterDialogFactory) {
+
                 var filterDialog = new filterDialogFactory({
                     query: getQuery(),
-                    mode: "livetvchannels"
+                    mode: 'livetvchannels'
                 });
-                Events.on(filterDialog, "filterchange", function () {
-                    reloadItems(context)
-                }), filterDialog.show()
-            })
+
+                Events.on(filterDialog, 'filterchange', function () {
+                    reloadItems(context);
+                });
+
+                filterDialog.show();
+            });
         }
 
         function reloadItems(context, save) {
+
             loading.show();
-            var query = getQuery(),
-                apiClient = ApiClient;
-            query.UserId = apiClient.getCurrentUserId(), apiClient.getLiveTvChannels(query).then(function (result) {
-                renderChannels(context, result), loading.hide()
-            })
+
+            var query = getQuery();
+
+            var apiClient = ApiClient;
+
+            query.UserId = apiClient.getCurrentUserId();
+
+            apiClient.getLiveTvChannels(query).then(function (result) {
+
+                renderChannels(context, result);
+
+                loading.hide();
+            });
         }
-        var pageData, self = this;
-        tabContent.querySelector(".btnFilter").addEventListener("click", function () {
-            showFilterMenu(tabContent)
-        }), self.renderTab = function () {
-            reloadItems(tabContent)
-        }
-    }
+
+        tabContent.querySelector('.btnFilter').addEventListener('click', function () {
+            showFilterMenu(tabContent);
+        });
+
+        self.renderTab = function () {
+
+            reloadItems(tabContent);
+        };
+    };
+
 });
